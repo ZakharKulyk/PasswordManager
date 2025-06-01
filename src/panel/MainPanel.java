@@ -1,17 +1,31 @@
 package panel;
 
+import Format.Index;
+import dto.FIleContent;
+import dto.PasswordFile;
+import exeption.WrongFileFormat;
+import service.EncryptionService;
+import service.FileMapperService;
+import service.GetLastDecryptionAttemptService;
+import service.IndexGenerator;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class MainPanel extends JPanel {
 
+
+    private final FileMapperService fileMapperService = new FileMapperService();
     private JButton createButton; // for creating files
     private JButton openButton;   // for opening existing files
-
+    private Map<File, PasswordFile> encryptedState = new HashMap<>();
 
 
     public MainPanel() {
@@ -34,6 +48,7 @@ public class MainPanel extends JPanel {
 
 
     private void openFileAct(ActionEvent e) {
+        PasswordFile passwordFile = new PasswordFile();
         JFileChooser fileChooser = new JFileChooser();
 
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Password files (*.zk)", "zk");
@@ -48,17 +63,85 @@ public class MainPanel extends JPanel {
             File selectedFile = fileChooser.getSelectedFile();
 
 
-
-            // Пока что просто показываем путь выбранного файла
-            // В будущем сюда добавим логику для загрузки файла и запроса мастер-пароля
             JOptionPane.showMessageDialog(this,
                     "File chosen: " + selectedFile.getAbsolutePath());
+
+            try {
+                fileMapperService.mapToFileContent(selectedFile, passwordFile);
+
+                if (passwordFile.getIndex() == null || passwordFile.getIndex().getIndexName().isEmpty()) {
+                    passwordFile.setIndex(new Index(IndexGenerator.generateIndex()));
+                    JFrame dialogFrame = new JFrame("Создание мастер-пароля");
+                    dialogFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    dialogFrame.setSize(400, 150);
+
+                    MasterPasswordCreationPanel panel = new MasterPasswordCreationPanel(masterPassword -> {
+                        System.out.println("Пользователь ввёл мастер-пароль: " + masterPassword);
+
+
+                        for (FIleContent entry : passwordFile.getEntries()) {
+                            EncryptionService.encrypt(entry, masterPassword);
+                        }
+
+                        encryptedState.put(selectedFile, passwordFile);
+
+                        fileMapperService.writeFileContentToFile(passwordFile, selectedFile);
+
+                        // закрываем окно
+                        dialogFrame.dispose();
+                    });
+
+                    dialogFrame.setContentPane(panel);
+                    dialogFrame.setLocationRelativeTo(null); // центр экрана
+                    dialogFrame.setVisible(true);
+                } else if (passwordFile.getIndex() != null && !(passwordFile.getIndex().getIndexName().isEmpty())) {
+                    JFrame requestFrame = new JFrame("Ввод мастер-пароля");
+                    requestFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    requestFrame.setSize(400, 150);
+
+                    MasterPasswordRequestPanel requestPanel = new MasterPasswordRequestPanel(enteredPassword -> {
+                        System.out.println("Введённый пароль: " + enteredPassword);
+
+                        encryptedState.get(selectedFile).addDecryptedAttempt(GetLastDecryptionAttemptService.getLastDecryptionAttempt());
+
+                        PasswordFile passwordFileCopyOfState = new PasswordFile(encryptedState.get(selectedFile));
+
+                        for (FIleContent entry : passwordFileCopyOfState.getEntries()) {
+                            EncryptionService.decrypt(entry, enteredPassword);
+                        }
+
+                        fileMapperService.writeFileContentToFile(passwordFileCopyOfState, selectedFile);
+
+                        requestFrame.dispose();
+
+                        JFrame tableFrame = new JFrame("Список паролей");
+                        tableFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        tableFrame.setSize(800, 400);
+                        tableFrame.setLocationRelativeTo(null);
+
+
+                        PasswordTablePanel tablePanel = new PasswordTablePanel(passwordFileCopyOfState.getEntries());
+                        tableFrame.setContentPane(tablePanel);
+
+                        tableFrame.setVisible(true);
+
+                    });
+
+                    requestFrame.setContentPane(requestPanel);
+                    requestFrame.setLocationRelativeTo(null);
+                    requestFrame.setVisible(true);
+                }
+
+            } catch (WrongFileFormat ex) {
+                ex.printStackTrace();
+                System.out.println("Invalid file format: " + ex.getMessage());
+            }
 
         }
     }
 
 
-    private void createFileAct(ActionEvent e){
+    private void createFileAct(ActionEvent e) {
 
         JFileChooser fileChooser = new JFileChooser();
 
@@ -78,7 +161,6 @@ public class MainPanel extends JPanel {
         }
 
     }
-
 
 
 }

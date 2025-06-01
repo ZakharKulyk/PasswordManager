@@ -9,7 +9,6 @@ public class IndexGenerator {
     public static String generateIndex() {
         StringBuilder sb = new StringBuilder();
 
-
         for (int i = 0; i < 2; i++) {
             char letter = (char) ('A' + random.nextInt(26));
             sb.append(letter);

@@ -9,4 +9,11 @@ public class Index {
     public String getIndexName() {
         return indexName;
     }
+
+    @Override
+    public String toString() {
+        return "Index{" +
+                "indexName='" + indexName + '\'' +
+                '}';
+    }
 }
