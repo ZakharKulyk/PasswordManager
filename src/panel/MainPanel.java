@@ -15,6 +15,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -120,7 +121,7 @@ public class MainPanel extends JPanel {
                         tableFrame.setLocationRelativeTo(null);
 
 
-                        PasswordTablePanel tablePanel = new PasswordTablePanel(passwordFileCopyOfState.getEntries());
+                        PasswordTablePanel tablePanel = new PasswordTablePanel(passwordFileCopyOfState,encryptedState,selectedFile);
                         tableFrame.setContentPane(tablePanel);
 
                         tableFrame.setVisible(true);
@@ -142,8 +143,9 @@ public class MainPanel extends JPanel {
 
 
     private void createFileAct(ActionEvent e) {
-
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Password files (*.zk)", "zk");
         JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(filter);
 
 
         int result = fileChooser.showSaveDialog(this);
@@ -158,6 +160,64 @@ public class MainPanel extends JPanel {
                     "Created new File: " + newFile.getAbsolutePath());
             System.out.println(newFile.getName());
             System.out.println(newFile.getAbsolutePath());
+
+            if (newFile.exists()) {
+                JOptionPane.showMessageDialog(this,
+                        "File already exists. Please choose a different name.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Создаем новый файл
+            try {
+                if (newFile.createNewFile()) {
+                    System.out.println("File created: " + newFile.getName());
+                } else {
+                    System.out.println("File already exists.");
+                }
+            } catch (IOException i) {
+                System.out.println("An error occurred.");
+                i.printStackTrace();
+            }
+
+            PasswordCreationPanel passwordCreationPanel = new PasswordCreationPanel((JFrame) SwingUtilities.getWindowAncestor(this));
+            passwordCreationPanel.setVisible(true);
+
+            PasswordFile passwordFile = new PasswordFile();
+
+            FIleContent newContent = passwordCreationPanel.getResult();
+
+            if (newContent == null) return; // in case if user pressed cancel
+
+            passwordFile.addEntry(newContent);
+
+            passwordFile.setIndex(new Index(IndexGenerator.generateIndex()));
+
+            JFrame dialogFrame = new JFrame("Создание мастер-пароля");
+            dialogFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            dialogFrame.setSize(400, 150);
+
+            MasterPasswordCreationPanel panel = new MasterPasswordCreationPanel(masterPassword -> {
+                System.out.println("Пользователь ввёл мастер-пароль: " + masterPassword);
+
+
+                for (FIleContent entry : passwordFile.getEntries()) {
+                    EncryptionService.encrypt(entry, masterPassword);
+                }
+
+                encryptedState.put(newFile, passwordFile);
+
+                fileMapperService.writeFileContentToFile(passwordFile, newFile);
+
+                // закрываем окно
+                dialogFrame.dispose();
+            });
+
+            dialogFrame.setContentPane(panel);
+            dialogFrame.setLocationRelativeTo(null); // центр экрана
+            dialogFrame.setVisible(true);
+
+
         }
 
     }
