@@ -91,23 +91,46 @@ public class FileMapperService {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
             // Записываем индекс файла
             if (passwordFile.getIndex() != null) {
-                bw.write("index: " + passwordFile.getIndex().getIndexName() + "\n\n");
+                if (!passwordFile.getIndex().getIndexName().isEmpty()) {
+                    bw.write("index: " + passwordFile.getIndex().getIndexName() + "\n\n");
+                }
             }
 
             // Записываем каждый пароль
             for (FIleContent content : passwordFile.getEntries()) {
-                if (content.getName() != null)
-                    bw.write("name: " + content.getName() + "\n");
-                if (content.getPassword() != null)
-                    bw.write("password: " + content.getPassword() + "\n");
-                if (content.getLogin() != null)
-                    bw.write("login: " + content.getLogin() + "\n");
-                if (content.getWebsite() != null)
-                    bw.write("website: " + content.getWebsite() + "\n");
-                if (content.getLocation() != null)
-                    bw.write("location: " + content.getLocation() + "\n");
-                if (content.getCategory() != null)
-                    bw.write("category: " + content.getCategory() + "\n");
+                if (content.getName() != null) {
+                    if (!content.getName().isEmpty()) {
+                        bw.write("name: " + content.getName() + "\n");
+                    }
+                }
+                if (content.getPassword() != null) {
+                    if (!content.getPassword().isEmpty()) {
+                        bw.write("password: " + content.getPassword() + "\n");
+                    }
+                }
+                if (content.getLogin() != null) {
+                    if (!content.getLogin().isEmpty()) {
+                        bw.write("login: " + content.getLogin() + "\n");
+                    }
+                }
+
+                if (content.getWebsite() != null) {
+                    if (!content.getWebsite().isEmpty()) {
+                        bw.write("website: " + content.getWebsite() + "\n");
+                    }
+                }
+
+                if (content.getLocation() != null) {
+                    if (!content.getLocation().isEmpty()) {
+                        bw.write("location: " + content.getLocation() + "\n");
+                    }
+                }
+
+                if (content.getCategory() != null) {
+                    if (!content.getCategory().isEmpty()) {
+                        bw.write("category: " + content.getCategory() + "\n");
+                    }
+                }
 
                 // Разделяем записи пустой строкой
                 bw.write("\n");
