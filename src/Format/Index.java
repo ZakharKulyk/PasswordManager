@@ -1,6 +1,8 @@
 package Format;
 
-public class Index {
+import java.io.Serializable;
+
+public class Index  implements Serializable {
     private  String indexName;
 
     public Index(String indexName) {

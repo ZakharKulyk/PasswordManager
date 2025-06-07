@@ -3,10 +3,11 @@ package dto;
 
 import Format.Index;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PasswordFile {
+public class PasswordFile implements Serializable {
 
     private List<FIleContent> entries = new ArrayList<>();
     private Index index;

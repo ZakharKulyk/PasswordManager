@@ -3,11 +3,12 @@ package dto;
 import Format.Category;
 import Format.Index;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class FIleContent {
+public class FIleContent implements Serializable {
 
     private String Name;
     private String password;

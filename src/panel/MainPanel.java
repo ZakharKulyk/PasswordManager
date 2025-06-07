@@ -1,13 +1,11 @@
 package panel;
 
 import Format.Index;
+import db.FileDb;
 import dto.FIleContent;
 import dto.PasswordFile;
 import exeption.WrongFileFormat;
-import service.EncryptionService;
-import service.FileMapperService;
-import service.GetLastDecryptionAttemptService;
-import service.IndexGenerator;
+import service.*;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -18,15 +16,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class MainPanel extends JPanel {
+
 
 
     private final FileMapperService fileMapperService = new FileMapperService();
     private JButton createButton; // for creating files
     private JButton openButton;   // for opening existing files
     private Map<File, PasswordFile> encryptedState = new HashMap<>();
+    private  FileDb db = FileDb.getInstance();
+
 
 
     public MainPanel() {
@@ -45,12 +45,17 @@ public class MainPanel extends JPanel {
         createButton.addActionListener(this::createFileAct);
         openButton.addActionListener(this::openFileAct);
 
+        db.setSave(SaveReaderService.readSave());
+        if(db.getSave() != null) {
+            encryptedState = db.getSave().getSavingFormat();
+        }
     }
 
 
     private void openFileAct(ActionEvent e) {
         PasswordFile passwordFile = new PasswordFile();
         JFileChooser fileChooser = new JFileChooser();
+
 
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Password files (*.zk)", "zk");
         fileChooser.setFileFilter(filter);
@@ -62,7 +67,6 @@ public class MainPanel extends JPanel {
         if (result == JFileChooser.APPROVE_OPTION) {
             // Получаем выбранный файл
             File selectedFile = fileChooser.getSelectedFile();
-
 
             JOptionPane.showMessageDialog(this,
                     "File chosen: " + selectedFile.getAbsolutePath());
@@ -222,5 +226,7 @@ public class MainPanel extends JPanel {
 
     }
 
-
+    public Map<File, PasswordFile> getEncryptedState() {
+        return encryptedState;
+    }
 }
