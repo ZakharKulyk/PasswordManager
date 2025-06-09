@@ -13,13 +13,13 @@ public class MasterPasswordRequestPanel extends JPanel {
     public MasterPasswordRequestPanel(Consumer<String> onPasswordEntered) {
         this.setLayout(new BorderLayout(10, 10));
 
-        JLabel label = new JLabel("Введите мастер-пароль для расшифровки файла:");
+        JLabel label = new JLabel("Enter MasterPassword for file decryption:");
         label.setHorizontalAlignment(SwingConstants.CENTER);
 
         passwordField = new JPasswordField(20);
-        continueButton = new JButton("Продолжить");
+        continueButton = new JButton("continue");
 
-        // Центр с полем и кнопкой
+
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -31,10 +31,10 @@ public class MasterPasswordRequestPanel extends JPanel {
         this.add(label, BorderLayout.NORTH);
         this.add(centerPanel, BorderLayout.CENTER);
 
-        // Обработка кнопки
+
         continueButton.addActionListener((ActionEvent e) -> {
             String password = new String(passwordField.getPassword());
-            onPasswordEntered.accept(password);  // передаём пароль через коллбэк
+            onPasswordEntered.accept(password);
         });
     }
 }

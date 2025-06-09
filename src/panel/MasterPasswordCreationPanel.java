@@ -13,11 +13,11 @@ public class MasterPasswordCreationPanel extends JPanel {
     public MasterPasswordCreationPanel(Consumer<String> onPasswordEntered) {
         this.setLayout(new BorderLayout(10, 10));
 
-        JLabel label = new JLabel("Введите мастер-пароль для этого файла:");
+        JLabel label = new JLabel("Enter your master password:");
         label.setHorizontalAlignment(SwingConstants.CENTER);
 
         passwordField = new JPasswordField(20);
-        continueButton = new JButton("Продолжить");
+        continueButton = new JButton("Continue");
 
         // Центр с полем и кнопкой
         JPanel centerPanel = new JPanel();

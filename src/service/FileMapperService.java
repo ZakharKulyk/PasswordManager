@@ -1,15 +1,12 @@
 package service;
 
-import Format.Category;
+
 import Format.Index;
 import dto.FIleContent;
 import dto.PasswordFile;
 import exeption.WrongFileFormat;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class FileMapperService {
 
@@ -29,7 +26,7 @@ public class FileMapperService {
                 line = line.trim();
                 if (line.isEmpty()) {
 
-                    if (name != null && password != null) {  // Минимальная проверка
+                    if (name != null && password != null) {
                         FIleContent entry = new FIleContent(name, password, login, website, location, category);
                         passwordFile.addEntry(entry);
 
@@ -75,7 +72,7 @@ public class FileMapperService {
                 }
             }
 
-            // Если после чтения файла остались данные не сохраненной записи — сохранить ее тоже
+
             if (name != null && password != null) {
                 FIleContent entry = new FIleContent(name, password, login, website, location, category);
                 passwordFile.addEntry(entry);

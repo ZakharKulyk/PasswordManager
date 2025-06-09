@@ -76,12 +76,12 @@ public class MainPanel extends JPanel {
 
                 if (passwordFile.getIndex() == null || passwordFile.getIndex().getIndexName().isEmpty()) {
                     passwordFile.setIndex(new Index(IndexGenerator.generateIndex()));
-                    JFrame dialogFrame = new JFrame("Создание мастер-пароля");
+                    JFrame dialogFrame = new JFrame("Master Password Creation");
                     dialogFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                     dialogFrame.setSize(400, 150);
 
                     MasterPasswordCreationPanel panel = new MasterPasswordCreationPanel(masterPassword -> {
-                        System.out.println("Пользователь ввёл мастер-пароль: " + masterPassword);
+                        System.out.println("User entered masterPassword " + masterPassword);
 
 
                         for (FIleContent entry : passwordFile.getEntries()) {
@@ -100,12 +100,12 @@ public class MainPanel extends JPanel {
                     dialogFrame.setLocationRelativeTo(null); // центр экрана
                     dialogFrame.setVisible(true);
                 } else if (passwordFile.getIndex() != null && !(passwordFile.getIndex().getIndexName().isEmpty())) {
-                    JFrame requestFrame = new JFrame("Ввод мастер-пароля");
+                    JFrame requestFrame = new JFrame("Enter Master Password");
                     requestFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                     requestFrame.setSize(400, 150);
 
                     MasterPasswordRequestPanel requestPanel = new MasterPasswordRequestPanel(enteredPassword -> {
-                        System.out.println("Введённый пароль: " + enteredPassword);
+                        System.out.println("EnteredPassword " + enteredPassword);
 
                         encryptedState.get(selectedFile).addDecryptedAttempt(GetLastDecryptionAttemptService.getLastDecryptionAttempt());
 
@@ -119,13 +119,13 @@ public class MainPanel extends JPanel {
 
                         requestFrame.dispose();
 
-                        JFrame tableFrame = new JFrame("Список паролей");
+                        JFrame tableFrame = new JFrame("PasswordList");
                         tableFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                         tableFrame.setSize(800, 400);
                         tableFrame.setLocationRelativeTo(null);
 
 
-                        PasswordTablePanel tablePanel = new PasswordTablePanel(passwordFileCopyOfState,encryptedState,selectedFile);
+                        PasswordTablePanel tablePanel = new PasswordTablePanel(passwordFileCopyOfState, selectedFile);
                         tableFrame.setContentPane(tablePanel);
 
                         tableFrame.setVisible(true);
@@ -155,11 +155,10 @@ public class MainPanel extends JPanel {
         int result = fileChooser.showSaveDialog(this);
 
         if (result == JFileChooser.APPROVE_OPTION) {
-            // Получаем указанный файл
+
             File newFile = fileChooser.getSelectedFile();
 
-            // Пока что просто показываем путь нового файла
-            // В будущем сюда добавим логику для создания файла и запроса мастер-пароля
+
             JOptionPane.showMessageDialog(this,
                     "Created new File: " + newFile.getAbsolutePath());
             System.out.println(newFile.getName());
@@ -197,12 +196,12 @@ public class MainPanel extends JPanel {
 
             passwordFile.setIndex(new Index(IndexGenerator.generateIndex()));
 
-            JFrame dialogFrame = new JFrame("Создание мастер-пароля");
+            JFrame dialogFrame = new JFrame("Master Password Creation");
             dialogFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             dialogFrame.setSize(400, 150);
 
             MasterPasswordCreationPanel panel = new MasterPasswordCreationPanel(masterPassword -> {
-                System.out.println("Пользователь ввёл мастер-пароль: " + masterPassword);
+                System.out.println("EnteredPassword " + masterPassword);
 
 
                 for (FIleContent entry : passwordFile.getEntries()) {
@@ -213,12 +212,12 @@ public class MainPanel extends JPanel {
 
                 fileMapperService.writeFileContentToFile(passwordFile, newFile);
 
-                // закрываем окно
+
                 dialogFrame.dispose();
             });
 
             dialogFrame.setContentPane(panel);
-            dialogFrame.setLocationRelativeTo(null); // центр экрана
+            dialogFrame.setLocationRelativeTo(null);
             dialogFrame.setVisible(true);
 
 

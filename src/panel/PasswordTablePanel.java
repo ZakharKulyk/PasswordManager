@@ -12,7 +12,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class PasswordTablePanel extends JPanel {
@@ -30,12 +29,12 @@ public class PasswordTablePanel extends JPanel {
 
 
     private FileMapperService fileMapperService = new FileMapperService();
-    private Map<File, PasswordFile> encryptedState;
+
 
     private PasswordFile editablePasswordFile = new PasswordFile();
 
-    public PasswordTablePanel(PasswordFile passwordFile, Map<File, PasswordFile> map, File file) {
-        this.encryptedState = map;
+    public PasswordTablePanel(PasswordFile passwordFile, File file) {
+
         setLayout(new BorderLayout());
 
         tableModel = new PasswordTableModel(passwordFile.getEntries());
@@ -47,14 +46,14 @@ public class PasswordTablePanel extends JPanel {
 
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        saveButton = new JButton("Сохранить");
-        addButton = new JButton("Добавить запись");
-        deleteButton = new JButton("Удалить");
+        saveButton = new JButton("Save");
+        addButton = new JButton("Add Record");
+        deleteButton = new JButton("Delete Record");
         searchByNameButton = new JButton("search by name");
-        sortButton = new JButton("sort by name and category");
-        searchField = new JTextField("find by name", 20);
+        sortButton = new JButton("Sort By Name And Category");
+        searchField = new JTextField("Find By Name", 20);
         deleteCategoryButton = new JButton("Delete Category");
-        categoryField = new JTextField("delete Category", 20);
+        categoryField = new JTextField("Delete Category", 20);
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JPanel categoryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -101,7 +100,7 @@ public class PasswordTablePanel extends JPanel {
             String targetCategory = categoryField.getText().trim();
 
             if (targetCategory.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Введите категорию для удаления!");
+                JOptionPane.showMessageDialog(this, "enter category to be deleted!");
                 return;
             }
 
@@ -113,7 +112,7 @@ public class PasswordTablePanel extends JPanel {
                     .collect(Collectors.toList());
 
             if (updatedEntries.size() == tableModel.getEntries().size()) {
-                JOptionPane.showMessageDialog(this, "Такая категория не найдена!");
+                JOptionPane.showMessageDialog(this, "that category does not exist!");
                 return;
             }
 
@@ -121,23 +120,23 @@ public class PasswordTablePanel extends JPanel {
             editablePasswordFile.setIndex(null);
             fileMapperService.writeFileContentToFile(editablePasswordFile, file);
 
-            JOptionPane.showMessageDialog(this, "Категория '" + targetCategory + "' успешно удалена!");
+            JOptionPane.showMessageDialog(this, "Category '" + targetCategory + "was deleted!");
 
-            // Закрываем текущее окно
+
             Window window = SwingUtilities.getWindowAncestor(this);
             if (window != null) {
                 window.dispose();
             }
 
-            // Переоткрываем окно с обновлёнными данными
+
             PasswordFile refreshedPasswordFile = new PasswordFile(editablePasswordFile);
 
-            JFrame newTableFrame = new JFrame("Список паролей");
+            JFrame newTableFrame = new JFrame("Password List");
             newTableFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             newTableFrame.setSize(800, 400);
             newTableFrame.setLocationRelativeTo(null);
 
-            PasswordTablePanel newPanel = new PasswordTablePanel(refreshedPasswordFile, encryptedState, file);
+            PasswordTablePanel newPanel = new PasswordTablePanel(refreshedPasswordFile,  file);
             newTableFrame.setContentPane(newPanel);
             newTableFrame.setVisible(true);
         });
@@ -165,7 +164,7 @@ public class PasswordTablePanel extends JPanel {
         editablePasswordFile.setIndex(null);
         fileMapperService.writeFileContentToFile(editablePasswordFile, file);
 
-        JOptionPane.showMessageDialog(this, "Файл успешно сохранён!");
+        JOptionPane.showMessageDialog(this, "File successfully saved!");
     }
 
     public void addButtonAction(File file) {
@@ -184,27 +183,26 @@ public class PasswordTablePanel extends JPanel {
             window.dispose();
         }
 
-// 2. Переоткрываем окно с обновлённым PasswordFile
-        PasswordFile refreshedPasswordFile = new PasswordFile(editablePasswordFile); // копия
 
-// (Если у тебя есть логика расшифровки — можешь здесь её вызвать, если нужно)
+        PasswordFile refreshedPasswordFile = new PasswordFile(editablePasswordFile);
 
-        JFrame newTableFrame = new JFrame("Список паролей");
+
+        JFrame newTableFrame = new JFrame("Password List");
         newTableFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         newTableFrame.setSize(800, 400);
         newTableFrame.setLocationRelativeTo(null);
 
-        PasswordTablePanel newPanel = new PasswordTablePanel(refreshedPasswordFile, encryptedState, file);
+        PasswordTablePanel newPanel = new PasswordTablePanel(refreshedPasswordFile,  file);
         newTableFrame.setContentPane(newPanel);
         newTableFrame.setVisible(true);
 
     }
 
     private void sortByNameAndCategory() {
-        // Предположим: 0 - Name, 2 - Category (уточни индексы в своей модели)
+
         List<RowSorter.SortKey> sortKeys = new ArrayList<>();
-        sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING)); // Name
-        sortKeys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING)); // Category
+        sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+        sortKeys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
         sorter.setSortKeys(sortKeys);
         sorter.sort();
     }
@@ -213,21 +211,21 @@ public class PasswordTablePanel extends JPanel {
         int selectedRow = table.getSelectedRow();
 
         int confirm = JOptionPane.showConfirmDialog(this,
-                "Вы уверены, что хотите удалить выбранную запись?",
-                "Подтвердите удаление", JOptionPane.YES_NO_OPTION);
+                "Are you sure that you want to delete the record?",
+                "Confirm deletion", JOptionPane.YES_NO_OPTION);
 
         if (confirm != JOptionPane.YES_OPTION) {
             return;
         }
 
-        // Удаление из модели
+
         tableModel.removeEntry(selectedRow);
 
-        // Обновление модели и файла
+
         editablePasswordFile.setEntries(tableModel.getEntries());
         editablePasswordFile.setIndex(null);
         fileMapperService.writeFileContentToFile(editablePasswordFile, file);
 
-        JOptionPane.showMessageDialog(this, "Запись успешно удалена!");
+        JOptionPane.showMessageDialog(this, "Record was deleted!");
     }
 }

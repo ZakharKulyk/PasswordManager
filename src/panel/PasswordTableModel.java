@@ -100,7 +100,7 @@ public class PasswordTableModel  extends AbstractTableModel {
     public void removeEntry(int rowIndex) {
         if (rowIndex >= 0 && rowIndex < entries.size()) {
             entries.remove(rowIndex);
-            fireTableDataChanged(); // обновить таблицу
+            fireTableDataChanged();
         }
     }
 
